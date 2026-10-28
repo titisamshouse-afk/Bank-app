@@ -45,9 +45,9 @@
   <script>
     // Public frontend settings only. Never put Supabase service-role keys or Plaid secrets here.
     const SUPABASE_URL = "https://umectlyadlmfgxghnkrx.supabase.co";
-    const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_7NJ-9xV6iCkhXahrWZvgNA_axU_qBxs";
     const BACKEND_URL = "PASTE_YOUR_RENDER_BACKEND_URL_HERE";
-    const configReady = SUPABASE_PUBLISHABLE_KEY !== "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE";
+    const configReady = SUPABASE_PUBLISHABLE_KEY !== "sb_publishable_7NJ-9xV6iCkhXahrWZvgNA_axU_qBxs";
     const backendReady = BACKEND_URL !== "PASTE_YOUR_RENDER_BACKEND_URL_HERE";
     const supabase = configReady && window.supabase
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
