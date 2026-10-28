@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#08162e">
+  <title>BankPass Vault</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+  <style>
+    :root{color-scheme:dark;--bg:#071326;--panel:#101f38;--line:#263b5c;--blue:#438cff;--text:#f4f7ff;--muted:#9cacc7;--good:#65dfb0}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#122d56 0,#071326 55%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+    .wrap{width:min(100%,460px);margin:auto;padding:28px 20px 40px}.brand{display:flex;align-items:center;gap:12px;margin:18px 0 30px}.mark{width:44px;height:44px;border-radius:15px;background:linear-gradient(145deg,#67b0ff,#2761df);display:grid;place-items:center;font-weight:900;font-size:23px;box-shadow:0 8px 24px #2469d955}.brand h1{font-size:20px;margin:0;letter-spacing:.1px}.brand p{margin:4px 0 0;color:var(--muted);font-size:12px}
+    .eyebrow{color:#83b7ff;font-size:12px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase}.hero h2{font-size:32px;line-height:1.1;letter-spacing:-1px;margin:10px 0}.hero p{color:var(--muted);line-height:1.55;margin:0 0 24px}.card{background:#0e1d34eF;border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:0 18px 50px #0003}.tabs{display:grid;grid-template-columns:1fr 1fr;background:#08162b;border:1px solid var(--line);padding:4px;border-radius:13px;margin-bottom:20px}.tabs button{background:transparent;color:var(--muted);border:0;padding:11px;border-radius:9px;font-weight:700}.tabs button.active{background:#203b62;color:white}
+    label{display:block;font-size:13px;color:#d7e2f5;margin:15px 0 8px}input{width:100%;padding:14px;border:1px solid #2c4162;border-radius:12px;background:#09162a;color:white;font-size:16px;outline:none}input:focus{border-color:var(--blue);box-shadow:0 0 0 3px #438cff24}.primary,.secondary{width:100%;border:0;border-radius:13px;padding:14px 16px;font-weight:800;font-size:15px;cursor:pointer;margin-top:18px}.primary{background:linear-gradient(100deg,#438cff,#2868e8);color:white;box-shadow:0 9px 22px #2768e844}.secondary{background:#162a48;border:1px solid #30486b;color:#dbe8ff}.hint,.status{font-size:12px;color:var(--muted);line-height:1.5}.status{min-height:18px;margin-top:12px;color:#ffd38a}.status.good{color:var(--good)}.hidden{display:none!important}.secure{display:flex;justify-content:center;gap:7px;margin:18px 0;color:#94a8c6;font-size:12px}.balance{padding:22px;border-radius:22px;background:linear-gradient(135deg,#2469de,#153a85);margin-bottom:16px}.balance .label{color:#d4e4ff;font-size:13px}.balance h2{font-size:32px;margin:8px 0}.balance p{margin:0;color:#d4e4ff;font-size:12px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.pill{font-size:11px;color:#bcd8ff;background:#ffffff18;padding:7px 10px;border-radius:30px}.feature{border:1px solid var(--line);background:#10213b;border-radius:16px;padding:16px;margin-top:12px}.feature h3{font-size:15px;margin:0 0 6px}.feature p{font-size:12px;color:var(--muted);margin:0;line-height:1.5}.footer{text-align:center;margin-top:24px;color:#7488a8;font-size:11px}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="brand"><div class="mark">B</div><div><h1>BankPass Vault</h1><p>Your money, organized.</p></div></header>
+    <section id="authView">
+      <div class="hero"><div class="eyebrow">Your personal finance space</div><h2>Banking, with a<br>little more peace of mind.</h2><p>Sign in to your secure demo account or create an account to get started.</p></div>
+      <div class="card">
+        <div class="tabs"><button id="signInTab" class="active" type="button">Sign in</button><button id="signUpTab" type="button">Create account</button></div>
+        <form id="authForm">
+          <label for="email">Email address</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+          <label for="password">Password</label><input id="password" type="password" autocomplete="current-password" minlength="8" placeholder="At least 8 characters" required>
+          <button class="primary" id="submitBtn" type="submit">Sign in securely</button>
+          <button class="secondary" id="resetBtn" type="button">Forgot password?</button>
+          <div id="authStatus" class="status" role="status" aria-live="polite"></div>
+        </form>
+        <p class="hint">Use an email you can access. Supabase may send a confirmation email when you create an account.</p>
+      </div>
+      <div class="secure">♧ <span>Encrypted connection · Sandbox demo</span></div>
+    </section>
+    <section id="dashboardView" class="hidden">
+      <div class="row" style="margin-bottom:16px"><div><div class="eyebrow">Your dashboard</div><h2 style="margin:7px 0 0;font-size:25px">Welcome back</h2></div><button id="signOutBtn" class="secondary" style="width:auto;margin:0;padding:10px 12px">Sign out</button></div>
+      <div class="balance"><div class="row"><span class="label">Demo overview</span><span class="pill">SANDBOX</span></div><h2>— — —</h2><p>Account balances will appear after a bank connection is implemented.</p></div>
+      <div class="feature"><div class="row"><h3>Connect a bank</h3><span>🔒</span></div><p>Use Plaid Sandbox test institutions to try the connection flow. This demo does not move money.</p><button id="connectBtn" class="primary" type="button">Connect test bank</button><div id="plaidStatus" class="status" role="status" aria-live="polite"></div></div>
+      <div class="feature"><h3>Recent activity</h3><p>Your transactions will appear here after the secure bank-link flow and server-side data sync are completed.</p></div>
+      <p id="userEmail" class="hint" style="margin-top:18px"></p>
+    </section>
+    <div class="footer">BankPass Vault · Prototype · Plaid Sandbox only</div>
+  </main>
+  <script>
+    // Public frontend settings only. Never put Supabase service-role keys or Plaid secrets here.
+    const SUPABASE_URL = "https://umectlyadlmfgxghnkrx.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE";
+    const BACKEND_URL = "PASTE_YOUR_RENDER_BACKEND_URL_HERE";
+    const configReady = SUPABASE_PUBLISHABLE_KEY !== "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE";
+    const backendReady = BACKEND_URL !== "PASTE_YOUR_RENDER_BACKEND_URL_HERE";
+    const supabase = configReady && window.supabase
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+      : null;
+    let mode = "signin";
+    const $ = id => document.getElementById(id);
+    function setMode(next) {
+      mode = next;
+      $("signInTab").classList.toggle("active", mode === "signin");
+      $("signUpTab").classList.toggle("active", mode === "signup");
+      $("submitBtn").textContent = mode === "signin" ? "Sign in securely" : "Create secure account";
+      $("password").autocomplete = mode === "signin" ? "current-password" : "new-password";
+      $("resetBtn").classList.toggle("hidden", mode === "signup");
+      $("authStatus").textContent = "";
+    }
+    function showStatus(id, message, good = false) {
+      $(id).textContent = message;
+      $(id).classList.toggle("good", good);
+    }
+    function showDashboard(user) {
+      $("authView").classList.add("hidden");
+      $("dashboardView").classList.remove("hidden");
+      $("userEmail").textContent = user?.email ? "Signed in as " + user.email : "";
+    }
+    function showAuth() {
+      $("dashboardView").classList.add("hidden");
+      $("authView").classList.remove("hidden");
+    }
+    $("signInTab").addEventListener("click", () => setMode("signin"));
+    $("signUpTab").addEventListener("click", () => setMode("signup"));
+    $("authForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!supabase) return showStatus("authStatus", "Setup needed: add your Supabase publishable key in index.html first.");
+      const email = $("email").value.trim();
+      const password = $("password").value;
+      $("submitBtn").disabled = true;
+      showStatus("authStatus", "Please wait…");
+      try {
+        if (mode === "signup") {
+          const { data, error } = await supabase.auth.signUp({ email, password });
+          if (error) throw error;
+          if (data.session) {
+            showDashboard(data.user);
+            showStatus("authStatus", "Account created.", true);
+          } else {
+            showStatus("authStatus", "Account created. Check your email to confirm it, then sign in.", true);
+          }
+        } else {
+          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          showDashboard(data.user);
+        }
+      } catch (err) {
+        showStatus("authStatus", err.message || "Could not complete sign in.");
+      } finally { $("submitBtn").disabled = false; }
+    });
+    $("resetBtn").addEventListener("click", async () => {
+      if (!supabase) return showStatus("authStatus", "Setup needed: add your Supabase publishable key in index.html first.");
+      const email = $("email").value.trim();
+      if (!email) return showStatus("authStatus", "Enter your email address first.");
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      showStatus("authStatus", error ? error.message : "If the account exists, a password-reset email will be sent.", !error);
+    });
+    $("signOutBtn").addEventListener("click", async () => {
+      if (supabase) await supabase.auth.signOut();
+      showAuth();
+    });
+    $("connectBtn").addEventListener("click", async () => {
+      if (!supabase) return showStatus("plaidStatus", "Finish Supabase frontend setup first.");
+      if (!backendReady) return showStatus("plaidStatus", "Setup needed: add your Render backend URL in index.html first.");
+      if (!window.Plaid) return showStatus("plaidStatus", "Plaid Link did not load. Check your internet connection and try again.");
+      $("connectBtn").disabled = true;
+      showStatus("plaidStatus", "Preparing secure Sandbox connection…");
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error("Please sign in again.");
+        const response = await fetch(BACKEND_URL.replace(/\/$/, "") + "/api/plaid/create-link-token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token },
+          body: JSON.stringify({})
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || "Could not start Plaid Link.");
+        const handler = window.Plaid.create({
+          token: payload.link_token,
+          onSuccess: () => showStatus("plaidStatus", "Sandbox bank linked in the demo. Secure account sync is the next setup step.", true),
+          onExit: () => showStatus("plaidStatus", "Bank connection closed.")
+        });
+        handler.open();
+        showStatus("plaidStatus", "Plaid Sandbox is ready.", true);
+      } catch (err) {
+        showStatus("plaidStatus", err.message || "Could not start the Sandbox connection.");
+      } finally { $("connectBtn").disabled = false; }
+    });
+    async function restoreSession() {
+      if (!supabase) return;
+      const { data } = await supabase.auth.getSession();
+      if (data.session) showDashboard(data.session.user);
+    }
+    restoreSession();
+  </script>
+</body>
+</html>
